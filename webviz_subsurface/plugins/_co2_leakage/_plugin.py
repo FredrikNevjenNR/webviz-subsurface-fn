@@ -92,8 +92,7 @@ class CO2Leakage(WebvizPluginABC):
         file_hazardous_boundary: Optional[str] = None,
         well_pick_file: Optional[str] = None,
         plume_mass_relpath: str = TILE_PATH + "/plume_mass.csv",
-        plume_actual_volume_relpath: str = TILE_PATH
-        + "/plume_actual_volume.csv",
+        plume_actual_volume_relpath: str = TILE_PATH + "/plume_actual_volume.csv",
         unsmry_relpath: str = TILE_PATH + "/unsmry--raw.csv",
         fault_polygon_attribute: str = "dl_extracted_faultlines",
         initial_surface: Optional[str] = None,
@@ -111,7 +110,11 @@ class CO2Leakage(WebvizPluginABC):
                 for ensemble_name in ensembles
             }
             # TODO? add support for different polygons and wells for each ensemble
-            self._file_containment_boundary, self._file_hazardous_boundary, well_pick_file = process_files(
+            (
+                self._file_containment_boundary,
+                self._file_hazardous_boundary,
+                well_pick_file,
+            ) = process_files(
                 file_containment_boundary,
                 file_hazardous_boundary,
                 well_pick_file,
@@ -164,7 +167,7 @@ class CO2Leakage(WebvizPluginABC):
             self._error_message = f"Plugin initialization failed: {err}"
             raise
 
-        self._summed_co2 = dict()
+        self._summed_co2 = {}
         self._visualization_threshold = -1
         self._color_tables = co2leakage_color_tables()
         self.add_shared_settings_group(
@@ -291,8 +294,8 @@ class CO2Leakage(WebvizPluginABC):
                         zone,
                         zones,
                     )
-                for i in range(len(figs)):
-                    figs[i]["layout"]["uirevision"] = f"{source}-{co2_scale}-{zone}"
+                for fig in figs:
+                    fig["layout"]["uirevision"] = f"{source}-{co2_scale}-{zone}"
                 figs[-1]["layout"]["uirevision"] += f"-{realizations}"
             elif source == GraphSource.UNSMRY and ensemble in self._unsmry_providers:
                 u_figs = generate_unsmry_figures(
@@ -370,8 +373,13 @@ class CO2Leakage(WebvizPluginABC):
             Input(self._settings_component(ViewSettings.Ids.CM_MAX), "value"),
             Input(self._settings_component(ViewSettings.Ids.PLUME_THRESHOLD), "value"),
             Input(self._settings_component(ViewSettings.Ids.PLUME_SMOOTHING), "value"),
-            Input(self._settings_component(ViewSettings.Ids.VISUALIZATION_THRESHOLD), "value"),
-            Input(self._settings_component(ViewSettings.Ids.VISUALIZATION_SHOW_0), "value"),
+            Input(
+                self._settings_component(ViewSettings.Ids.VISUALIZATION_THRESHOLD),
+                "value",
+            ),
+            Input(
+                self._settings_component(ViewSettings.Ids.VISUALIZATION_SHOW_0), "value"
+            ),
             Input(ViewSettings.Ids.OPTIONS_DIALOG_OPTIONS, "value"),
             Input(ViewSettings.Ids.OPTIONS_DIALOG_WELL_FILTER, "value"),
             State(self._settings_component(ViewSettings.Ids.ENSEMBLE), "value"),
@@ -452,10 +460,15 @@ class CO2Leakage(WebvizPluginABC):
                     MapAttribute.DISSOLVED,
                     MapAttribute.FREE,
                 ]:
-                    if summed_mass is not None and summed_co2_key not in self._summed_co2:
+                    if (
+                        summed_mass is not None
+                        and summed_co2_key not in self._summed_co2
+                    ):
                         self._summed_co2[summed_co2_key] = summed_mass
                     if summed_co2_key in self._summed_co2:
-                        surf_data.readable_name += " (Total: {:.2e}): ".format(self._summed_co2[summed_co2_key])
+                        surf_data.readable_name += " (Total: {:.2e}): ".format(
+                            self._summed_co2[summed_co2_key]
+                        )
             # Plume polygon
             plume_polygon = None
             if contour_data is not None:
