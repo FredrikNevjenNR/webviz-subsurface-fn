@@ -331,7 +331,9 @@ def generate_co2_time_containment_one_realization_figure(
             ]
         }
         pattern = ["", "/"] * len(zone_info["zones"])
-        colors = [col for col in _zone_colors(len(zone_info["zones"])) for i in range(2)]
+        colors = [
+            col for col in _zone_colors(len(zone_info["zones"])) for i in range(2)
+        ]
     else:
         df = pandas.melt(df, id_vars=["date"])
         cat_ord = {
@@ -416,9 +418,15 @@ def _prepare_time_figure_options(
             df_ = pandas.concat([df_, part_df], axis=1)
         colors = _zone_colors(len(zones))
         cols_to_plot = {}
-        for phase, line_type in zip(["total", "gas", "aqueous"], ["solid", "dot", "dash"]):
+        for phase, line_type in zip(
+            ["total", "gas", "aqueous"], ["solid", "dot", "dash"]
+        ):
             for zone_name, col in zip(zones, colors):
-                cols_to_plot[zone_name + ", " + phase] = (zone_name + ", " + phase, line_type, col)
+                cols_to_plot[zone_name + ", " + phase] = (
+                    zone_name + ", " + phase,
+                    line_type,
+                    col,
+                )
         active_cols_at_startup = [zone_name + ", total" for zone_name in zones]
         df = df_
     else:
@@ -448,7 +456,9 @@ def generate_co2_time_containment_figure(
     zone_info: Optional[Dict[str, any]],
 ) -> go.Figure:
     df = _read_co2_volumes(table_provider, realizations, scale, zone_info)
-    df, cols_to_plot, active_cols_at_startup = _prepare_time_figure_options(df, zone_info)
+    df, cols_to_plot, active_cols_at_startup = _prepare_time_figure_options(
+        df, zone_info
+    )
     fig = go.Figure()
     # Generate dummy scatters for legend entries
     dummy_args = {"x": df["date"], "mode": "lines", "hoverinfo": "none"}

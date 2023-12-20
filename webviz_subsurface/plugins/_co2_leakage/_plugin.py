@@ -112,13 +112,16 @@ class CO2Leakage(WebvizPluginABC):
                 for ensemble_name in ensembles
             }
             # TODO? add support for different polygons and wells for each ensemble
-            file_containment_boundary, file_hazardous_boundary, well_pick_file =\
-                process_files(
-                    file_containment_boundary,
-                    file_hazardous_boundary,
-                    well_pick_file,
-                    list(ensemble_paths.values())[0]
-                )
+            (
+                file_containment_boundary,
+                file_hazardous_boundary,
+                well_pick_file,
+            ) = process_files(
+                file_containment_boundary,
+                file_hazardous_boundary,
+                well_pick_file,
+                list(ensemble_paths.values())[0],
+            )
             self._polygon_files = [file_containment_boundary, file_hazardous_boundary]
             self._surface_server = SurfaceImageServer.instance(app)
             self._polygons_server = FaultPolygonsServer.instance(app)
@@ -255,10 +258,7 @@ class CO2Leakage(WebvizPluginABC):
         ) -> Tuple[go.Figure, go.Figure, Dict, Dict]:
             out = {"figs": [no_update] * 3, "styles": [{"display": "none"}] * 3}
             zone_info = get_zone_info(
-                zone,
-                zone_view,
-                self._zone_options[ensemble][source],
-                source
+                zone, zone_view, self._zone_options[ensemble][source], source
             )
             if source in [
                 GraphSource.CONTAINMENT_MASS,
@@ -292,7 +292,9 @@ class CO2Leakage(WebvizPluginABC):
                         zone_info,
                     )
                 for fig in out["figs"]:
-                    fig["layout"]["uirevision"] = f"{source}-{co2_scale}-{zone_info['zone']}"
+                    fig["layout"][
+                        "uirevision"
+                    ] = f"{source}-{co2_scale}-{zone_info['zone']}"
                 out["figs"][-1]["layout"]["uirevision"] += f"-{realizations}"
             elif source == GraphSource.UNSMRY and ensemble in self._unsmry_providers:
                 u_figs = generate_unsmry_figures(
@@ -417,8 +419,10 @@ class CO2Leakage(WebvizPluginABC):
                 visualization_threshold = 1e-10
             # Clear surface cache if the threshold for visualization is changed
             if self._visualization_threshold != visualization_threshold:
-                print("Clearing cache because the visualization threshold was changed\n"
-                      "Re-select realization(s) to update the current map")
+                print(
+                    "Clearing cache because the visualization threshold was changed\n"
+                    "Re-select realization(s) to update the current map"
+                )
                 self._surface_server._image_cache.clear()
                 self._visualization_threshold = visualization_threshold
             # Surface
@@ -457,8 +461,9 @@ class CO2Leakage(WebvizPluginABC):
                     ):
                         self._summed_co2[summed_co2_key] = summed_mass
                     if summed_co2_key in self._summed_co2:
-                        surf_data.readable_name += \
+                        surf_data.readable_name += (
                             f" (Total: {self._summed_co2[summed_co2_key]:.2E}): "
+                        )
             # Plume polygon
             plume_polygon = None
             if contour_data is not None:
