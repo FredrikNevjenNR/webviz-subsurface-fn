@@ -91,11 +91,11 @@ def init_table_provider(
 
 def init_zone_options(
     ensemble_roots: Dict[str, str],
-    mass_table: EnsembleTableProvider,
-    actual_volume_table: EnsembleTableProvider,
-    ensemble_provider: EnsembleSurfaceProvider,
+    mass_table: Dict[str, EnsembleTableProvider],
+    actual_volume_table: Dict[str, EnsembleTableProvider],
+    ensemble_provider: Dict[str, EnsembleSurfaceProvider],
 ) -> Dict[str, Dict[str, List[str]]]:
-    options = {}
+    options: Dict[str, Dict[str, List[str]]] = {}
     for ens in ensemble_roots.keys():
         options[ens] = {}
         real = ensemble_provider[ens].realizations()[0]
@@ -116,7 +116,7 @@ def process_files(
     haz_bound: Optional[str],
     well_file: Optional[str],
     root: str,
-) -> List[str]:
+) -> List[Optional[str]]:
     """
     Checks if the files exist (otherwise gives a warning and returns None)
     Concatenates ensemble root dir and path to file if relative
@@ -126,7 +126,7 @@ def process_files(
     ]
 
 
-def _process_file(file: Optional[str], root: str) -> str:
+def _process_file(file: Optional[str], root: str) -> Optional[str]:
     if file is not None:
         file = _check_if_file_exists(
             os.path.join(Path(root).parents[1], file)
@@ -136,7 +136,7 @@ def _process_file(file: Optional[str], root: str) -> str:
     return file
 
 
-def _check_if_file_exists(file: Optional[str]) -> str:
+def _check_if_file_exists(file: str) -> Optional[str]:
     if not os.path.isfile(file):
         warnings.warn(f"Cannot find specified file {file}.")
         return None

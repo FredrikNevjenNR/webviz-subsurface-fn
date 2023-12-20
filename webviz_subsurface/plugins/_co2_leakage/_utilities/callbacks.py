@@ -74,7 +74,7 @@ class SurfaceData:
         color_map_name: str,
         readable_name_: str,
         visualization_threshold: float,
-    ) -> "SurfaceData":
+    ) -> Tuple[SurfaceData, Optional[Any]]:
         surf_meta, img_url, summed_mass = publish_and_get_surface_metadata(
             server,
             provider,
@@ -192,7 +192,7 @@ def get_plume_polygon(
     )
 
 
-def _find_legend_title(attribute: MapAttribute):
+def _find_legend_title(attribute: MapAttribute) -> str:
     if attribute == MapAttribute.MIGRATION_TIME:
         return "years"
     if attribute in [MapAttribute.MASS, MapAttribute.DISSOLVED, MapAttribute.FREE]:
@@ -373,7 +373,7 @@ def generate_containment_figures(
     co2_scale: Union[Co2MassScale, Co2VolumeScale],
     realization: int,
     y_limits: List[Optional[float]],
-    zone_info: Optional[Dict[str, any]],
+    zone_info: Dict[str, Any],
 ) -> Tuple[go.Figure, go.Figure, go.Figure]:
     try:
         fig0 = generate_co2_volume_figure(

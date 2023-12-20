@@ -46,7 +46,7 @@ def _read_dataframe(
     table_provider: EnsembleTableProvider,
     realization: int,
     scale_factor: float,
-    zone_info: Optional[Dict[str, any]],
+    zone_info: Dict[str, Any],
 ) -> pandas.DataFrame:
     df = table_provider.get_column_data(table_provider.column_names(), [realization])
     if "zone" in list(df.columns):
@@ -94,7 +94,7 @@ def get_zone_info(
     zone_view: Optional[str],
     zones: Optional[List[str]],
     source: str,
-) -> Tuple[str, str, List[str]]:
+) -> Dict[str, Union[str, None, List[str]]]:
     if source in [
         GraphSource.CONTAINMENT_MASS,
         GraphSource.CONTAINMENT_ACTUAL_VOLUME,
@@ -111,7 +111,7 @@ def get_zone_info(
 
 def _process_zone_information(
     df: pandas.DataFrame,
-    zone_info: Optional[Dict[str, any]],
+    zone_info: Dict[str, Any],
 ) -> pandas.DataFrame:
     zone = zone_info["zone"]
     if zone_info["zone_view"] == ZoneViews.ZONESPLIT:
@@ -155,7 +155,7 @@ def _read_terminal_co2_volumes(
     table_provider: EnsembleTableProvider,
     realizations: List[int],
     scale: Union[Co2MassScale, Co2VolumeScale],
-    zone_info: Optional[Dict[str, any]],
+    zone_info: Dict[str, Any],
 ) -> pandas.DataFrame:
     records: Dict[str, List[Any]] = {
         "real": [],
@@ -221,7 +221,7 @@ def _read_co2_volumes(
     table_provider: EnsembleTableProvider,
     realizations: List[int],
     scale: Union[Co2MassScale, Co2VolumeScale],
-    zone_info: Optional[Dict[str, any]],
+    zone_info: Dict[str, Any],
 ) -> pandas.DataFrame:
     scale_factor = _find_scale_factor(table_provider, scale)
     return pandas.concat(
@@ -262,7 +262,7 @@ def generate_co2_volume_figure(
     table_provider: EnsembleTableProvider,
     realizations: List[int],
     scale: Union[Co2MassScale, Co2VolumeScale],
-    zone_info: Optional[Dict[str, any]],
+    zone_info: Dict[str, Any],
 ) -> go.Figure:
     df = _read_terminal_co2_volumes(table_provider, realizations, scale, zone_info)
     if zone_info["zone"] == "zonesplit":
@@ -303,7 +303,7 @@ def generate_co2_time_containment_one_realization_figure(
     scale: Union[Co2MassScale, Co2VolumeScale],
     time_series_realization: int,
     y_limits: List[Optional[float]],
-    zone_info: Optional[Dict[str, any]],
+    zone_info: Dict[str, Any],
 ) -> go.Figure:
     df = _read_co2_volumes(table_provider, [time_series_realization], scale, zone_info)
     df.sort_values(by="date", inplace=True)
@@ -390,8 +390,8 @@ def generate_co2_time_containment_one_realization_figure(
 
 def _prepare_time_figure_options(
     df: pandas.DataFrame,
-    zone_info: Optional[Dict[str, any]],
-) -> Tuple[pandas.DataFrame, Dict[str, List[str]], List[str]]:
+    zone_info: Dict[str, Any],
+) -> Tuple[pandas.DataFrame, Dict[str, Tuple[str, str, str]], List[str]]:
     zones = zone_info["zones"]
     if zone_info["zone_view"] == ZoneViews.ZONESPLIT:
         df = df.drop(
@@ -453,7 +453,7 @@ def generate_co2_time_containment_figure(
     table_provider: EnsembleTableProvider,
     realizations: List[int],
     scale: Union[Co2MassScale, Co2VolumeScale],
-    zone_info: Optional[Dict[str, any]],
+    zone_info: Dict[str, Any],
 ) -> go.Figure:
     df = _read_co2_volumes(table_provider, realizations, scale, zone_info)
     df, cols_to_plot, active_cols_at_startup = _prepare_time_figure_options(

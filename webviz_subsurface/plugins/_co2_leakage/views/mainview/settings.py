@@ -254,7 +254,7 @@ class ViewSettings(SettingsGroupABC):
             source: GraphSource,
             ensemble: str,
             current_value: str,
-        ) -> Tuple[List[Dict[str, Any]], Optional[str]]:
+        ) -> Tuple[List[str], Optional[str]]:
             if ensemble is not None:
                 zones = self._zone_options[ensemble][source]
                 if len(zones) > 0:
@@ -465,9 +465,9 @@ class GraphSelectorsLayout(wcc.Selectors):
         self,
         graph_source_id: str,
         co2_scale_id: str,
-        y_min_ids: str,
-        y_max_ids: str,
-        zone_ids: str,
+        y_min_ids: List[str],
+        y_max_ids: List[str],
+        zone_ids: List[str],
         has_zones: bool,
     ):
         disp = "flex" if has_zones else "none"

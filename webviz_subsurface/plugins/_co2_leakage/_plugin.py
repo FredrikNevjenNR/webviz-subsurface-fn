@@ -170,8 +170,8 @@ class CO2Leakage(WebvizPluginABC):
             self._error_message = f"Plugin initialization failed: {err}"
             raise
 
-        self._summed_co2 = {}
-        self._visualization_threshold = -1
+        self._summed_co2: Dict[str, Any] = {}
+        self._visualization_threshold = -1.0
         self._color_tables = co2leakage_color_tables()
         self.add_shared_settings_group(
             ViewSettings(
@@ -414,7 +414,7 @@ class CO2Leakage(WebvizPluginABC):
                     "smoothing": plume_smoothing,
                 }
             if len(visualize_0) != 0:
-                visualization_threshold = -1
+                visualization_threshold = -1.0
             elif visualization_threshold is None:
                 visualization_threshold = 1e-10
             # Clear surface cache if the threshold for visualization is changed
@@ -423,6 +423,8 @@ class CO2Leakage(WebvizPluginABC):
                     "Clearing cache because the visualization threshold was changed\n"
                     "Re-select realization(s) to update the current map"
                 )
+                # Unable to clear this without using the protected member
+                # pylint: disable=protected-access
                 self._surface_server._image_cache.clear()
                 self._visualization_threshold = visualization_threshold
             # Surface
@@ -460,7 +462,7 @@ class CO2Leakage(WebvizPluginABC):
                         and summed_co2_key not in self._summed_co2
                     ):
                         self._summed_co2[summed_co2_key] = summed_mass
-                    if summed_co2_key in self._summed_co2:
+                    if summed_co2_key in self._summed_co2 and surf_data is not None:
                         surf_data.readable_name += (
                             f" (Total: {self._summed_co2[summed_co2_key]:.2E}): "
                         )
