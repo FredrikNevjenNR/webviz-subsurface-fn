@@ -1,8 +1,8 @@
 import logging
 import os
+import warnings
 from pathlib import Path
 from typing import Dict, List, Optional
-import warnings
 
 from webviz_config import WebvizSettings
 
@@ -13,15 +13,15 @@ from webviz_subsurface._providers import (
     EnsembleTableProviderFactory,
 )
 from webviz_subsurface._utils.webvizstore_functions import read_csv
+from webviz_subsurface.plugins._co2_leakage._utilities.co2volume import (
+    read_zone_options,
+)
 from webviz_subsurface.plugins._co2_leakage._utilities.generic import (
-    MapAttribute,
     GraphSource,
+    MapAttribute,
 )
 from webviz_subsurface.plugins._map_viewer_fmu._tmp_well_pick_provider import (
     WellPickProvider,
-)
-from webviz_subsurface.plugins._co2_leakage._utilities.co2volume import (
-    read_zone_options,
 )
 
 LOGGER = logging.getLogger(__name__)

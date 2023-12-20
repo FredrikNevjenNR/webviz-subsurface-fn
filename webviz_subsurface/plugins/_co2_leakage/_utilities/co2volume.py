@@ -10,7 +10,6 @@ from webviz_subsurface._providers import EnsembleTableProvider
 from webviz_subsurface.plugins._co2_leakage._utilities.generic import (
     Co2MassScale,
     Co2VolumeScale,
-    GraphSource,
     ZoneViews,
 )
 
@@ -87,26 +86,6 @@ def read_zone_options(
             if zone not in zones:
                 zones.append(zone)
     return zones if len(zones) > 1 else []
-
-
-def get_zone_info(
-    zone: Optional[str],
-    zone_view: Optional[str],
-    zones: Optional[List[str]],
-    source: str,
-) -> Dict[str, Union[str, None, List[str]]]:
-    if source in [
-        GraphSource.CONTAINMENT_MASS,
-        GraphSource.CONTAINMENT_ACTUAL_VOLUME,
-    ]:
-        if zones is None or len(zones) == 0:
-            zone_view = ZoneViews.CONTAINMENTSPLIT
-        else:
-            zones = [zone_name for zone_name in zones if zone_name != "all"]
-        if zone_view == ZoneViews.ZONESPLIT:
-            zone = "zonesplit"
-        return {"zone": zone, "zone_view": zone_view, "zones": zones}
-    return {"zone": None, "zone_view": ZoneViews.CONTAINMENTSPLIT, "zones": []}
 
 
 def _process_zone_information(

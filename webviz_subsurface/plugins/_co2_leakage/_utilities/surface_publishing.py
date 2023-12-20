@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Any, List, Optional, Tuple, Union
-import numpy as np
 
+import numpy as np
 import xtgeo
 
 from webviz_subsurface._providers import (

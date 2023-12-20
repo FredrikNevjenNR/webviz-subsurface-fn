@@ -16,11 +16,11 @@ from webviz_subsurface.plugins._co2_leakage._utilities.callbacks import (
     generate_containment_figures,
     generate_unsmry_figures,
     get_plume_polygon,
+    process_summed_mass,
+    process_visualization_info,
+    process_zone_info,
     property_origin,
     readable_name,
-)
-from webviz_subsurface.plugins._co2_leakage._utilities.co2volume import (
-    get_zone_info,
 )
 from webviz_subsurface.plugins._co2_leakage._utilities.fault_polygons import (
     FaultPolygonsHandler,
@@ -257,7 +257,7 @@ class CO2Leakage(WebvizPluginABC):
             zone_view: str,
         ) -> Tuple[go.Figure, go.Figure, Dict, Dict]:
             out = {"figs": [no_update] * 3, "styles": [{"display": "none"}] * 3}
-            zone_info = get_zone_info(
+            zone_info = process_zone_info(
                 zone, zone_view, self._zone_options[ensemble][source], source
             )
             if source in [
@@ -413,20 +413,14 @@ class CO2Leakage(WebvizPluginABC):
                     "threshold": plume_threshold,
                     "smoothing": plume_smoothing,
                 }
-            if len(visualize_0) != 0:
-                visualization_threshold = -1.0
-            elif visualization_threshold is None:
-                visualization_threshold = 1e-10
-            # Clear surface cache if the threshold for visualization is changed
-            if self._visualization_threshold != visualization_threshold:
-                print(
-                    "Clearing cache because the visualization threshold was changed\n"
-                    "Re-select realization(s) to update the current map"
-                )
-                # Unable to clear this without using the protected member
-                # pylint: disable=protected-access
-                self._surface_server._image_cache.clear()
-                self._visualization_threshold = visualization_threshold
+            # Unable to clear cache (when needed) without the protected member
+            # pylint: disable=protected-access
+            self._visualization_threshold = process_visualization_info(
+                visualize_0,
+                visualization_threshold,
+                self._visualization_threshold,
+                self._surface_server._image_cache,
+            )
             # Surface
             surf_data, summed_mass = None, None
             if formation is not None and len(realization) > 0:
@@ -448,24 +442,17 @@ class CO2Leakage(WebvizPluginABC):
                     ),
                     color_map_name=color_map_name,
                     readable_name_=readable_name(attribute),
-                    visualization_threshold=visualization_threshold,
+                    visualization_threshold=self._visualization_threshold,
                 )
-            summed_co2_key = f"{formation}-{realization[0]}-{datestr}-{attribute}"
-            if len(realization) == 1:
-                if attribute in [
-                    MapAttribute.MASS,
-                    MapAttribute.DISSOLVED,
-                    MapAttribute.FREE,
-                ]:
-                    if (
-                        summed_mass is not None
-                        and summed_co2_key not in self._summed_co2
-                    ):
-                        self._summed_co2[summed_co2_key] = summed_mass
-                    if summed_co2_key in self._summed_co2 and surf_data is not None:
-                        surf_data.readable_name += (
-                            f" (Total: {self._summed_co2[summed_co2_key]:.2E}): "
-                        )
+            surf_data, self._summed_co2 = process_summed_mass(
+                formation,
+                realization,
+                datestr,
+                attribute,
+                summed_mass,
+                surf_data,
+                self._summed_co2,
+            )
             # Plume polygon
             plume_polygon = None
             if contour_data is not None:
