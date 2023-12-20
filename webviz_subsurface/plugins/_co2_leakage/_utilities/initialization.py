@@ -1,7 +1,6 @@
 import logging
 import os
 from pathlib import Path
-from glob import glob
 from typing import Dict, List, Optional
 import warnings
 
@@ -97,15 +96,15 @@ def init_zone_options(
     ensemble_provider: EnsembleSurfaceProvider,
 ) -> Dict[str, Dict[str, List[str]]]:
     options = {}
-    for ens, ens_path in ensemble_roots.items():
+    for ens in ensemble_roots.keys():
         options[ens] = {}
         real = ensemble_provider[ens].realizations()[0]
-        for source, tp in zip(
+        for source, table in zip(
             [GraphSource.CONTAINMENT_MASS, GraphSource.CONTAINMENT_ACTUAL_VOLUME],
             [mass_table, actual_volume_table],
         ):
             try:
-                options[ens][source] = read_zone_options(tp[ens], real)
+                options[ens][source] = read_zone_options(table[ens], real)
             except KeyError:
                 options[ens][source] = []
         options[ens][GraphSource.UNSMRY] = []

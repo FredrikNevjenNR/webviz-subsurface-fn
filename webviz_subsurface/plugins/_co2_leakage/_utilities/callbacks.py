@@ -195,7 +195,7 @@ def get_plume_polygon(
 def _find_legend_title(attribute: MapAttribute):
     if attribute == MapAttribute.MIGRATION_TIME:
         return "years"
-    elif attribute in [MapAttribute.MASS, MapAttribute.DISSOLVED, MapAttribute.FREE]:
+    if attribute in [MapAttribute.MASS, MapAttribute.DISSOLVED, MapAttribute.FREE]:
         return "kg"
     return ""
 
@@ -373,26 +373,23 @@ def generate_containment_figures(
     co2_scale: Union[Co2MassScale, Co2VolumeScale],
     realization: int,
     y_limits: List[Optional[float]],
-    zone: Optional[str],
-    zones: Optional[List[str]],
+    zone_info: Optional[Dict[str, any]],
 ) -> Tuple[go.Figure, go.Figure, go.Figure]:
     try:
         fig0 = generate_co2_volume_figure(
             table_provider,
             table_provider.realizations(),
             co2_scale,
-            zone,
-            zones,
+            zone_info,
         )
         fig1 = generate_co2_time_containment_figure(
             table_provider,
             table_provider.realizations(),
             co2_scale,
-            zone,
-            zones,
+            zone_info,
         )
         fig2 = generate_co2_time_containment_one_realization_figure(
-            table_provider, co2_scale, realization, y_limits, zone, zones
+            table_provider, co2_scale, realization, y_limits, zone_info
         )
     except KeyError as exc:
         warnings.warn(f"Could not generate CO2 figures: {exc}")
