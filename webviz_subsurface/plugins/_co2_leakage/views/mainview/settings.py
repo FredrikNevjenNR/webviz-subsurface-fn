@@ -1,5 +1,5 @@
-from typing import Any, Dict, List, Optional, Tuple
 import warnings
+from typing import Any, Dict, List, Optional, Tuple
 
 import dash
 import webviz_core_components as wcc

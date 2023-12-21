@@ -77,7 +77,7 @@ class SurfaceData:
         color_map_name: str,
         readable_name_: str,
         visualization_threshold: float,
-        map_attribute_names: Dict[str, str],
+        map_attribute_names: Dict[MapAttribute, str],
     ) -> Tuple[Any, Optional[Any]]:
         surf_meta, img_url, summed_mass = publish_and_get_surface_metadata(
             server,
@@ -328,7 +328,8 @@ def create_map_layers(
             }
         )
     if (
-        well_pick_provider is not None and formation is not None
+        well_pick_provider is not None
+        and formation is not None
         and LayoutLabels.SHOW_WELLS in options_dialog_options
     ):
         well_data = dict(well_pick_provider.get_geojson(selected_wells, formation))

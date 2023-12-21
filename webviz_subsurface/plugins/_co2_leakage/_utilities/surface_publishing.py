@@ -41,7 +41,7 @@ def publish_and_get_surface_metadata(
     provider: EnsembleSurfaceProvider,
     address: Union[SurfaceAddress, TruncatedSurfaceAddress],
     visualization_threshold: float,
-    map_attribute_names: Dict[str, str],
+    map_attribute_names: Dict[MapAttribute, str],
 ) -> Tuple[Optional[SurfaceImageMeta], str, Optional[Any]]:
     if isinstance(address, TruncatedSurfaceAddress):
         return _publish_and_get_truncated_surface_metadata(server, provider, address)
@@ -55,7 +55,10 @@ def publish_and_get_surface_metadata(
         if not surface:
             raise ValueError(f"Could not get surface for address: {address}")
         summed_mass = np.ma.sum(surface.values)
-        if address.attribute != map_attribute_names[MapAttribute.MIGRATION_TIME] and visualization_threshold >= 0:
+        if (
+            address.attribute != map_attribute_names[MapAttribute.MIGRATION_TIME]
+            and visualization_threshold >= 0
+        ):
             surface.operation("elile", visualization_threshold)
         server.publish_surface(qualified_address, surface)
         surf_meta = server.get_surface_metadata(qualified_address)
